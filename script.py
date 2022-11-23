@@ -1,19 +1,18 @@
-import random
-import pandas as pd
 import dash
 from dash.dependencies import Input, Output
-from dash import html as html
-from dash import dcc as dcc
+from dash import html
+from dash import dcc
 import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
 import plotly.express as px
-import sklearn
 from sklearn.linear_model import LinearRegression
 import numpy as np
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 # Datos
-data = pd.read_csv('WhirlpoolLimpiaFinal.csv', index_col=0)
+data = pd.read_excel('WhirlpoolLimpiaFinal.xlsx', index_col=0, engine='openpyxl')
+data['Test Completion Date'] = pd.to_datetime(data['Test Completion Date'])
+
 # TABLERO 4: REGRESIONES
 # 1. Opciones de entrada y salida 
 column_list = data.columns.values.tolist() # Variables continuas 
@@ -33,6 +32,9 @@ options = numeric
 group = ['General', 'Refrigerant', 'Supplier', 'E-star/Std.', 'Cluster']
 familias = ['General'] + list(data['Familia'].unique()) 
 
+# 3. última fecha de actualización
+update = str(data['Test Completion Date'].max())[0:11]
+
 sidebar_style = {
     'position': 'fixed',
     'top': 0,
@@ -44,7 +46,17 @@ sidebar_style = {
 }
 
 sidebar = html.Div([
-    html.Div(html.H4('Variables', className= 'text-center', style= {'color': '#ffffff'}),
+    html.Div(html.H6('Última actualización', className= 'text-center', style= {'color': '#ffffff'}),
+    style={'padding': '0px 0px 0px 0px'}),
+
+    html.Hr(style={'color': '#ffffff', 'height': '2px'}),
+
+    html.Div(html.H6(f'{update}', className= 'text-center', style= {'color': '#ffffff'}),
+    style={'padding': '0px 0px 0px 0px'}),
+
+    html.Hr(style={'color': '#ffffff', 'height': '2px'}),
+
+    html.Div(html.H6('Variables', className= 'text-center', style= {'color': '#ffffff'}),
     style={'padding': '0px 0px 0px 0px'}),
     html.Hr(style={'color': '#ffffff', 'height': '2px'}),
 
@@ -91,11 +103,7 @@ sidebar = html.Div([
         value = 'General',
         style={'width': '100%'},
         clearable=False
-    )], style={'padding': '0.5rem 0.5rem 0.5rem 0.5rem'}),
-
-    html.Div(html.H4('Filtros', className= 'text-center', style= {'color': '#ffffff'}),
-    style={'padding': '10px 0px 0px 0px'}),
-    html.Hr(style={'color': '#ffffff', 'height': '2px'})
+    )], style={'padding': '0.5rem 0.5rem 0.5rem 0.5rem'})
     
 ], style=sidebar_style)
 
@@ -124,7 +132,7 @@ def update_output(ddl_x_value, ddl_y_value, ddl_z_value, ddl_w_value):
     # Se selecciona familia y se selecciona grupo 
     if (ddl_w_value != 'General') and (ddl_z_value != 'General'):
         graphs = []
-        colors = ['#eeb111', '#342704']
+        colors = ['#eeb111', '#333']
         classes = list(data[data['Familia'] == ddl_w_value][ddl_z_value].unique())
         amount = data[data['Familia'] == ddl_w_value].shape[0]
         title_text = f'<b>Familia:</b> {ddl_w_value} <br> <b>Unidades totales</b>: {amount} <br>'
@@ -138,7 +146,7 @@ def update_output(ddl_x_value, ddl_y_value, ddl_z_value, ddl_w_value):
             graphs.append(go.Scatter(x=x, y=y, mode='markers', marker_color= colors[i], name=f'Datos {cls}'))
             graphs.append(go.Scatter(x=x_range, y=y_range, marker_color= colors[i], name=f'Tendencia {cls}'))
             cls_amount = data[(data[ddl_z_value] == cls) & (data['Familia'] == ddl_w_value)].shape[0]
-            title_text = title_text + f'<b>{cls}:</b>{cls_amount} '
+            title_text = title_text + f'<b>{cls}:</b>{cls_amount}  '
 
     # Se selecciona familia pero no se selecciona grupo 
     elif (ddl_w_value != 'General') and (ddl_z_value == 'General'):
@@ -148,8 +156,8 @@ def update_output(ddl_x_value, ddl_y_value, ddl_z_value, ddl_w_value):
         model.fit(x.values.reshape(-1,1), y)
         x_range = np.linspace(x.min(), x.max(), 100)
         y_range = model.predict(x_range.reshape(-1,1))
-        graphs = [go.Scatter(x=x, y=y, mode='markers', marker_color='blue', name='Datos')]
-        graphs.append(go.Scatter(x=x_range, y=y_range, name='Tendencia', marker_color='red'))
+        graphs = [go.Scatter(x=x, y=y, mode='markers', marker_color='#333', name='Datos')]
+        graphs.append(go.Scatter(x=x_range, y=y_range, name='Tendencia', marker_color='#eeb111'))
         amount = data[data['Familia'] == ddl_w_value].shape[0]
         title_text = f'<b>Familia:</b> {ddl_w_value} <br> <b>Unidades totales</b>: {amount} <br>'
     
@@ -157,7 +165,7 @@ def update_output(ddl_x_value, ddl_y_value, ddl_z_value, ddl_w_value):
     elif (ddl_w_value == 'General') and (ddl_z_value != 'General'):
         amount = data.shape[0]
         graphs = []
-        colors = ['#eeb111', '#342704']
+        colors = ['#eeb111', '#333']
         classes = list(data[ddl_z_value].unique())
         title_text = f'<b>Familia:</b> {ddl_w_value} <br> <b>Unidades totales</b>: {amount} <br>'
         for cls, i in zip(classes, range(len(classes))):
@@ -170,7 +178,7 @@ def update_output(ddl_x_value, ddl_y_value, ddl_z_value, ddl_w_value):
             graphs.append(go.Scatter(x=x, y=y, mode='markers', marker_color= colors[i], name=f'Datos {cls}'))
             graphs.append(go.Scatter(x=x_range, y=y_range, marker_color= colors[i], name=f'Tendencia {cls}'))
             cls_amount = data[(data[ddl_z_value] == cls)].shape[0]
-            title_text = title_text + f'<b>{cls}:</b>{cls_amount} '
+            title_text = title_text + f'<b>{cls}:</b>{cls_amount}   '
 
     # No se selecciona familia y no se selecciona grupo 
     else:
@@ -181,8 +189,8 @@ def update_output(ddl_x_value, ddl_y_value, ddl_z_value, ddl_w_value):
         model.fit(x.values.reshape(-1,1), y)
         x_range = np.linspace(x.min(), x.max(), 100)
         y_range = model.predict(x_range.reshape(-1,1))
-        graphs = [go.Scatter(x=x, y=y, mode='markers', marker_color='blue', name='Datos')]
-        graphs.append(go.Scatter(x=x_range, y=y_range, name='Tendencia', marker_color='red'))
+        graphs = [go.Scatter(x=x, y=y, mode='markers', marker_color='#333', name='Datos')]
+        graphs.append(go.Scatter(x=x_range, y=y_range, name='Tendencia', marker_color='#eeb111'))
         amount = data.shape[0]
         title_text = f'<b>Familia:</b> {ddl_w_value} <br> <b>Unidades totales</b>: {amount} <br>'
 
@@ -197,5 +205,5 @@ def update_output(ddl_x_value, ddl_y_value, ddl_z_value, ddl_w_value):
 
     return fig
 
-if __name__ == '_main_':
+if __name__ == '__main__':
     app.run_server(debug=True)
