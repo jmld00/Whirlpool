@@ -31,7 +31,7 @@ plotly==5.11.0
 pyparsing==3.0.9
 pypiwin32==223
 Pyro4==4.82
-pyserial==3.4
+
 
 
 pywin32==303
