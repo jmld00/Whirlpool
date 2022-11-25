@@ -7,6 +7,7 @@ import plotly.graph_objs as go
 import plotly.express as px
 from sklearn.linear_model import LinearRegression
 import numpy as np
+import pandas as pd
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 # Datos
