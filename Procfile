@@ -1,2 +1,1 @@
-worker: script.py
-web gunicorn run: server
+web: gunicorn script: server
