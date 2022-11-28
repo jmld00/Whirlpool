@@ -9,8 +9,9 @@ from sklearn.linear_model import LinearRegression
 import numpy as np
 import pandas as pd
 
-server = app.server
+
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+server = app.server
 # Datos
 data = pd.read_excel('WhirlpoolLimpiaFinal.xlsx', index_col=0, engine='openpyxl')
 data['Test Completion Date'] = pd.to_datetime(data['Test Completion Date'])
