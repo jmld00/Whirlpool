@@ -111,7 +111,7 @@ sidebar = html.Div([
 ], style=sidebar_style)
 
 content_style = {
-    'margin-left': '0rem'
+    'margin-left': '17rem'
 }
 
 content = html.Div([
