@@ -12,8 +12,6 @@ import pandas as pd
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
-app.title = 'Whirpool Data Analitics'
-app._favicon = ("page_wicon.png")
 # Datos
 data = pd.read_excel('WhirlpoolLimpiaFinal.xlsx', index_col=0, engine='openpyxl')
 data['Test Completion Date'] = pd.to_datetime(data['Test Completion Date'])
@@ -39,7 +37,6 @@ familias = ['General'] + list(data['Familia'].unique())
 
 # 3. última fecha de actualización
 update = str(data['Test Completion Date'].max())[0:11]
-
 
 sidebar_style = {
     'position': 'fixed',
@@ -118,7 +115,7 @@ content_style = {
 }
 
 content = html.Div([
-    dcc.Graph(id='graph1', style={'width': '100vh', 'height': '100vh', 'responsive': 'True'})
+    dcc.Graph(id='graph1', style={'width': '176vh', 'height': '100vh', 'responsive': 'True'})
 ], style=content_style)
 
 app.layout = html.Div([sidebar, content])
@@ -210,8 +207,6 @@ def update_output(ddl_x_value, ddl_y_value, ddl_z_value, ddl_w_value):
                       legend_bordercolor = '#dbdbdb',legend_borderwidth = 2)
 
     return fig
-
-
 
 if __name__ == '__main__':
     app.run_server(debug=True)
