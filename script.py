@@ -104,7 +104,8 @@ sidebar = html.Div([
         id='ddl_z',
         options=[{'label': i, 'value': i} for i in group],
         value = 'General',
-        style={'width': '100%'},
+        style={'width': '100%},
+        maxHeight= '50px',
         clearable=False
     )], style={'padding': '0.5rem 0.5rem 0.5rem 0.5rem'})
     
