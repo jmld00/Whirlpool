@@ -116,7 +116,7 @@ content_style = {
 }
 
 content = html.Div([
-    dcc.Graph(id='graph1', style={'width': '100%', 'height': '100vh', 'responsive': 'True'})
+    dcc.Graph(id='graph1', style={'width': '100%', 'height': '100%', 'responsive': 'True'})
 ], style=content_style)
 
 app.layout = html.Div([sidebar, content])
